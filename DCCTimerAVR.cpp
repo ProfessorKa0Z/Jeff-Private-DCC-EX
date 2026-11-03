@@ -86,7 +86,7 @@ void DCCTimer::startRailcomTimer(byte brakePin) {
     */
   const int Tcs=28;    // NMRA spec is 26..32
   const int cutoutDuration_uS = 450;    // As chosen by most
-  const uint16_t delayBeforeCutout_uS=58+58+58+Tcs;
+  const uint16_t delayBeforeCutout_uS=58+58+Tcs;
   const uint16_t timer1_ticks_per_uS = 8;
   const uint16_t timer2_uS_per_tick = 2;
   
@@ -95,6 +95,7 @@ void DCCTimer::startRailcomTimer(byte brakePin) {
   // Prescaler of 32
   TCCR2B =  (1 << CS21) | (1 << CS20); 
   OCR2A = cutoutDuration_uS/timer2_uS_per_tick; // Compare match value for cutout duration in timer2 ticks (2uSec)
+  OCR2B = 0; // Needs to be 0 for cutout which conflicts with MotorDriver::throttleInrush, so we pauseRailcom() there
   // Enable Timer2 output on pin 9 (OC2B)
   DDRB |= (1 << DDB1);
 
@@ -229,7 +230,7 @@ void DCCTimer::DCCEXanalogWriteFrequencyInternal(uint8_t pin, uint32_t fbits) {
 
     TCCR2A = (TCCR2A & B11111100) | abits; // set WGM0 and WGM1
     TCCR2B = (TCCR2B & B11110000) | bbits; // set WGM2 and 3 bits of prescaler
-    DIAG(F("Timer 2 A=%x B=%x"), TCCR2A, TCCR2B);
+    //DIAG(F("Timer 2 A=%x B=%x"), TCCR2A, TCCR2B);
 
   } else { // not timer 9 or 10
     abits = B01;

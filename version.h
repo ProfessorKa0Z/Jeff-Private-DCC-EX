@@ -3,7 +3,19 @@
 
 #include "StringFormatter.h"
 
-#define VERSION "5.5.67"
+#define VERSION "5.6.6"
+// 5.6.6  - BugFix: Mega: RailCom cutout was broken after overload or DC
+// 5.6.5  - BugFix: Mega: RailCom cutout was too late
+// 5.6.4  - BugFix: Corrected decoding for F13 to F20
+//        - Minor fixes for PlatformIO compile
+// 5.6.3  - BugFix: EXRAIL READ_LOCO IFLOCO(0)
+// 5.6.2  - Bugfix: Sniffer decoder filter out irrelevant DCC packets
+//        - Bugfix: Make sniffer railsync input detection interrupt safe
+// 5.6.1  - Safety net for users which have not defined an ONRAILSYNCOFF hanlder
+// 5.6.0  - Minor adaptions to make production version
+// 5.5.68 - EXRAIL: BITMAP_SET
+//        - EXRAIL: Comments corrections for doc build
+//        - RailCom: Simplification for sniffer-based detector implementation      
 // 5.5.67 - RailCom, AVR: Correct cutout timer calculation
 //        - RailCom: Improved block handling
 //        - EXRAIL: new IF_ALL,IF_ANY
