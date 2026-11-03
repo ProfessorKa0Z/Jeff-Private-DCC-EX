@@ -152,9 +152,12 @@
 #elif defined(ARDUINO_ARCH_STM32)
   #define ARDUINO_TYPE "STM32"
   // STM32 no EEPROM by default 
-  #ifndef DISABLE_EEPROM
-    #define DISABLE_EEPROM
+  #ifndef EX_EEPROM
+    #define EX_EEPROM
   #endif
+  //#ifndef DISABLE_EEPROM
+   // #define DISABLE_EEPROM
+  //#endif
   #if ENABLE_ETHERNET
     // WAITING FOR STM32 ETHERNET SUPPORT FIX
     // #define ENABLE_SERIAL_LOG

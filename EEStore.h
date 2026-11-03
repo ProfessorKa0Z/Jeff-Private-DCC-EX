@@ -26,12 +26,13 @@
 
 #include <Arduino.h>
 
-#if defined(ARDUINO_ARCH_SAMC)
-#include <SparkFun_External_EEPROM.h>
+#ifdef EX_EEPROM
+#include "exEEPROM.h"
 extern ExternalEEPROM EEPROM;
 #else
 #include <EEPROM.h>
 #endif
+
 
 #define EESTORE_ID "DCC++1"
 
