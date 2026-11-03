@@ -64,8 +64,7 @@
 
 class LiquidCrystal_I2C : public DisplayDevice {
 public:
-  // Changing orientation not implemented for LCDs, but provide default parameter for compatibility with other display drivers
-  LiquidCrystal_I2C(I2CAddress lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows, Orientation orientation = Orientation::normal);
+  LiquidCrystal_I2C(I2CAddress lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows);
   bool begin() override;
   void clearNative() override;
   void setRowNative(byte line) override;

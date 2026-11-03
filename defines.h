@@ -134,9 +134,12 @@
   #warning "ESP8266 platform untested, you are on your own"
 #elif defined(ARDUINO_ARCH_ESP32)
   #define ARDUINO_TYPE "ESP32"
-  #ifndef DISABLE_EEPROM
-  #define DISABLE_EEPROM
+  #ifndef EX_EEPROM
+    #define EX_EEPROM
   #endif
+ // #ifndef DISABLE_EEPROM
+ // #define DISABLE_EEPROM
+ // #endif
   #if ENABLE_WIFI
    #define ENABLE_SERIAL_LOG
    #endif

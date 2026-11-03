@@ -22,12 +22,6 @@
 #include "defines.h"
 #include "DisplayInterface.h"
 
-// Used for OLED displays.  Orientation is not implemented for LCDs, but they share "HALDisplay::create" constructors
-enum class Orientation {
-  normal,
-  flipped
-};
-
 // Allow maximum message length to be overridden from config.h
 #if !defined(MAX_MSG_SIZE)
 #define MAX_MSG_SIZE 20 
@@ -44,7 +38,11 @@ class Display : public DisplayInterface {
 public:
   Display(DisplayDevice *deviceDriver);
 #if !defined (MAX_CHARACTER_ROWS)
-  static const int MAX_CHARACTER_ROWS = 8;
+  #if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_STM32)
+    static const int MAX_CHARACTER_ROWS = 17;
+  #else
+    static const int MAX_CHARACTER_ROWS = 8;
+  #endif
 #endif
   static const int MAX_CHARACTER_COLS = MAX_MSG_SIZE;
   static const long DISPLAY_SCROLL_TIME = 3000;  // 3 seconds
