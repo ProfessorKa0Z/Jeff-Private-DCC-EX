@@ -18,14 +18,3 @@ UserAddin.txt
 _build
 venv
 .DS_Store
-SSD1306Ascii.cpp
-defines.h
-EEStore.cpp
-EEStore.h
-autofiles/
-Display.h
-Display_Implementation.h
-IO_HALDisplay.h
-LiquidCrystal_I2C.cpp
-LiquidCrystal_I2C.h
-SSD1306Ascii.h
