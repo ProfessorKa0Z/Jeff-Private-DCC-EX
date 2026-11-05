@@ -301,6 +301,6 @@ The configuration file for DCC-EX Command Station
 #define CAM SENSORCAM_VPIN+
 
 // For smoother power-up, define a STARTUP_DELAY to allow CAM to initialise ref images
-//#define STARTUP_DELAY 5000    // up to 20sec. CS delay
+#define STARTUP_DELAY 5000    // up to 20sec. CS delay
 
 //#define ARDUINO_ARCH_SAMC
