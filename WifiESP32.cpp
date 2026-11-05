@@ -223,7 +223,9 @@ bool WifiESP::setup(const char *SSid,
     if (WiFi.status() == WL_CONNECTED) {
       // DIAG(F("Wifi STA IP %s"),WiFi.localIP().toString().c_str());
       DIAG(F("Wifi in STA mode"));
-      LCD(7, F("IP: %s"), WiFi.localIP().toString().c_str());
+      // temp hack to deal with blank line bug
+      //LCD(7, F("IP: %s"), WiFi.localIP().toString().c_str());
+      LCD(4, F("IP: %s"), WiFi.localIP().toString().c_str());
       wifiUp = true;
     } else {
       DIAG(F("Could not connect to Wifi SSID %s"),SSid);

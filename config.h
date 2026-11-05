@@ -57,7 +57,10 @@ The configuration file for DCC-EX Command Station
 //   |
 //   +-----------------------v
 //
-#define MOTOR_SHIELD_TYPE EX8874_SHIELD
+  #define EX8874_ACEBOTT_ESP32 F("EX8874_ACEBOTT_ESP32"), \
+    new MotorDriver(26/* 3*/, 16/*12*/, UNUSED_PIN, 19/*9*/, 32/*A0*/, 1.52, 5000, 36/*A4*/), \
+    new MotorDriver(17/*11*/,  5/*13*/, UNUSED_PIN, 23/*8*/, 33/*A1*/, 1.52, 5000, 39/*A5*/)
+  #define MOTOR_SHIELD_TYPE EX8874_ACEBOTT_ESP32
 //
 /////////////////////////////////////////////////////////////////////////////////////
 //

@@ -7,7 +7,8 @@ HAL(EXIOExpander, 800, 62, 0x65) // EX-IOExpander for signals
 ALIAS(pwm, 164) // GPA0 (164) - PWM
 ALIAS(stby, 165) // GPA1 (165) - STBY
 
-#define trk_pwr -10 // pin 10 connected to pin 11 to sense motor shield PWM state
+#define trk_pwr -18 // ESP32 pin 18 connected to pin 17 to sense motor shield PWM state
+                    // this is pin 10/11 on UNO form factor
 
 HAL(Bitmap,1000,2)  // flags
 
@@ -61,20 +62,6 @@ ONTHROW(refresh)
   CLOSE(refresh)
 DONE
 
-AUTOSTART
-LCD(0,"OLED Line 0")
-LCD(1,"OLED Line 1")
-LCD(2,"OLED Line 2")
-LCD(3,"OLED Line 3")
-DELAY(500)
-LCD(7,"OLED LINE 7.1")
-DELAY(500)
-LCD(7,"OLED LINE 7.2")
-DELAY(500)
-LCD(7,"OLED LINE 7.3")
-DONE
-
-/*
 ALIAS(camcheck)
 AUTOSTART SEQUENCE(camcheck) // check sensor 20 (vpin 716) for SensorCAM response. Can be any undefined sensor.
   DELAY(1000)
@@ -92,7 +79,7 @@ AUTOSTART SEQUENCE(camcheck) // check sensor 20 (vpin 716) for SensorCAM respons
   LCD(7,"SensorCAM INACTIVE")
   DELAY(5000) // check again in 5 seconds
 FOLLOW(camcheck)
-*/
+
 //---------- Turnouts ----------
 
 // Unitrack turnouts controlled by TB6612 H-bridges
