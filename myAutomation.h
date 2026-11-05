@@ -2,16 +2,6 @@
 HAL(EXSensorCAM, SENSORCAM_VPIN,  80, 0x11) //SENSORCAM _VPIN defined in config.h
 HAL(EXIOExpander, 800, 62, 0x65) // EX-IOExpander for signals
 
-AUTOSTART
-LCD(0,"OLED Line 0")
-LCD(1,"OLED Line 1")
-LCD(2,"OLED Line 2")
-LCD(3,"OLED Line 3")
-LCD(7,"I'm Spartacus!")
-LCD(6,"OLED Line 6")
-LCD(7,"No, I'M Spartacus!")
-DONE
-
 //---------- Pin definitions and latches ----------
 // Turnout board has common pwm and stby pins for all drivers
 ALIAS(pwm, 164) // GPA0 (164) - PWM
@@ -71,7 +61,7 @@ ONTHROW(refresh)
   PARSE("<N r 00>")
   CLOSE(refresh)
 DONE
-/*
+
 ALIAS(camcheck)
 AUTOSTART SEQUENCE(camcheck) // check sensor 20 (vpin 716) for SensorCAM response. Can be any undefined sensor.
   DELAY(1000)
@@ -89,7 +79,7 @@ AUTOSTART SEQUENCE(camcheck) // check sensor 20 (vpin 716) for SensorCAM respons
   LCD(7,"SensorCAM INACTIVE")
   DELAY(5000) // check again in 5 seconds
 FOLLOW(camcheck)
-*/
+
 //---------- Turnouts ----------
 
 // Unitrack turnouts controlled by TB6612 H-bridges
