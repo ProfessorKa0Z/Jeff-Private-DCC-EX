@@ -62,9 +62,9 @@ SEQUENCE(471)
 	RESERVE(1)  // need top path
 	PRINT("471 proceeding top crossover")
 	THROW(2)
-	DELAY(PULSE)
+	DELAY(HPULSE)
 	CLOSE(1)
-  	DELAY(PULSE)
+  	DELAY(HPULSE)
  	CLOSE(8) // in case outer yard is thrown
 	CALL(drive)
 	START(497) // block 4-7 clearer
@@ -85,7 +85,7 @@ SEQUENCE(481)
 	RESERVE(2)
 	PRINT("481 proceeding cross crossover")
 	THROW(2)
-	DELAY(PULSE)
+	DELAY(HPULSE)
 	THROW(1)
 	CALL(drive)
 	START(498)  // block 4-8 clearer
@@ -120,9 +120,9 @@ SEQUENCE(571)
 	RESERVE(1)  // need top path
 	PRINT("571 proceeding top crossover")
 	CLOSE(2)
-	DELAY(PULSE)
+	DELAY(HPULSE)
 	CLOSE(1)
- 	DELAY(PULSE)
+ 	DELAY(HPULSE)
  	CLOSE(8) // in case outer yard is thrown
 	CALL(drive)
 	START(597) // block 5-7 clearer
@@ -143,7 +143,7 @@ SEQUENCE(581)
 	RESERVE(2)
 	PRINT("581 proceeding cross crossover")
   	CLOSE(2)
-	DELAY(PULSE)
+	DELAY(HPULSE)
 	THROW(1)
 	CALL(drive)
 	START(598)  // block 5-8 clearer
@@ -179,7 +179,7 @@ SEQUENCE(671)
  	RESERVE(2)
   	PRINT("671 proceeding cross crossover")
   	THROW(1)
-  	DELAY(PULSE)
+  	DELAY(HPULSE)
   	CLOSE(8)  // yard
 	CALL(drive)
 	START(697) // block 6-7 clearer

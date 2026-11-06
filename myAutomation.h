@@ -90,7 +90,7 @@ FOLLOW(camcheck)
 
 AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 
-#define PULSE 40  // Set the duration of the pulse (ms) 40 msec needed with 14v / 9400µF CDU and Kato double crossover for reliable throw
+#define HPULSE 40  // Set the duration of the pulse (ms) 40 msec needed with 14v / 9400µF CDU and Kato double crossover for reliable throw
 #define decay 3   // Set the duration of the brake (ms)
 
 #define SINGLE_COIL_TURNOUT(t, in2, in1, sig, desc) \
@@ -100,11 +100,11 @@ AUTOSTART \
   IFTHROWN(t) RED(sig) ELSE GREEN(sig) ENDIF \
 DONE \
 ONCLOSE(t) \
-	RESERVE(trnblock) SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(PULSE) SET(in2) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)  \
+	RESERVE(trnblock) SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(HPULSE) SET(in2) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)  \
   GREEN(sig) \
 DONE \
 ONTHROW(t) \
-	RESERVE(trnblock) SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(PULSE) SET(in1) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)   \
+	RESERVE(trnblock) SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(HPULSE) SET(in1) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)   \
   RED(sig) \
 DONE
 
