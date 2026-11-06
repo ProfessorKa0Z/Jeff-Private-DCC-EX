@@ -14,10 +14,10 @@ HAL(Bitmap,1000,2)  // flags
 
 ALIAS(trnblock, 254) // turnout sequences will reserve or free this block to moderate control of pwm and stby pins [must be less than 255 for free/reserve]
 
-ALIAS(prog_red, 845)	// Turnout and LED for programming track join (pin 47 & 49 expander)
-ALIAS(prog_green,843)	// 843 is red; 845 is green (active-low; common anode to 5v)
+ALIAS(prog_red, 843)	// Turnout and LED for programming track join (pin 47 & 49 expander)
+ALIAS(prog_green,845)	// 843 is red; 845 is green (active-low; common anode to 5v)
 ALIAS(prog_amber,1000)	// unconnected;  just defined so amber will turn off LED
-ALIAS(prog_sig, 845)
+ALIAS(prog_sig, 843)
 
 ALIAS(cl6flag,1001) // flag to indicate train in block 6 is clockwise
 
@@ -71,12 +71,12 @@ AUTOSTART SEQUENCE(camcheck) // check sensor 20 (vpin 716) for SensorCAM respons
     PARSE("<No 20>") // unlatch sensor
     DELAY(500)
     IFNOT(700+020)
-      LCD(6,"SensorCAM connected")
+      LCD(7,"SensorCAM connected")
       DELAY(60000) // update every 60 seconds
       FOLLOW(camcheck)
     ENDIF
   ENDIF
-  LCD(6,"SensorCAM INACTIVE")
+  LCD(7,"SensorCAM INACTIVE")
   DELAY(5000) // check again in 5 seconds
 FOLLOW(camcheck)
 
@@ -90,42 +90,35 @@ FOLLOW(camcheck)
 
 AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 
-#define HPULSE 40  // Set the duration of the pulse (ms) 40 msec needed with 14v / 9400µF CDU and Kato double crossover for reliable throw
+#define HPULSE 40  // Set the duration of the HPULSE (ms) 40 msec needed with 14v / 9400µF CDU and Kato double crossover for reliable throw
 #define decay 3   // Set the duration of the brake (ms)
 
-#define closed 0
-#define thrown 1
-
-#define SINGLE_COIL_TURNOUT(t, in2, in1, sig, nvs, desc) \
+#define SINGLE_COIL_TURNOUT(t, in2, in1, sig, desc) \
 PIN_TURNOUT(t, 0, desc) \
 AUTOSTART \
   RESET(in1) RESET(in2) \
-  IFNVS(nvs) RED(sig) ELSE GREEN(sig) ENDIF \
-  DELAY(500) \
 DONE \
 ONCLOSE(t) \
 	RESERVE(trnblock) SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(HPULSE) SET(in2) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)  \
   GREEN(sig) \
-  IFNVS(nvs) STEALTH(NVSTable::setNVS(nvs, closed, true);) ENDIF \
 DONE \
 ONTHROW(t) \
 	RESERVE(trnblock) SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(HPULSE) SET(in1) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)   \
   RED(sig) \
-  IFNVS(nvs) ELSE STEALTH(NVSTable::setNVS(nvs, thrown, true);) ENDIF \
 DONE
 
 // H-bridge inputs MCP23017 expander pins #1 GPA2-GPB7; #2 GPA0-GPA5: vpins 166 - 185 
-// turnout defined as id, h-bridge output pins, indicator signal, nvs location, description
-SINGLE_COIL_TURNOUT(1, 166, 167, 811, 1, "Crossover")
-SINGLE_COIL_TURNOUT(2, 169, 168, 809, 2, "Upper passing")
-SINGLE_COIL_TURNOUT(3, 170, 171, 807, 3, "Lower passing")
-SINGLE_COIL_TURNOUT(4, 173, 172, 805, 4, "Inner lead")
-SINGLE_COIL_TURNOUT(5, 174, 175, 803, 5, "Inner ladder")
-SINGLE_COIL_TURNOUT(6, 177, 176, 801, 6, "Prog lead")
-SINGLE_COIL_TURNOUT(7, 178, 179, 816, 7, "Prog ladder")
-SINGLE_COIL_TURNOUT(8, 181, 180, 812, 8, "Yard lead")
-SINGLE_COIL_TURNOUT(9, 183, 182, 842, 9, "Yard ladder 1" )
-SINGLE_COIL_TURNOUT(10,184, 185, 814, 10, "Yard ladder 2")
+// turnout defined as id, h-bridge output pins, indicator signal
+SINGLE_COIL_TURNOUT(1, 166, 167, 811, "Crossover")
+SINGLE_COIL_TURNOUT(2, 169, 168, 809, "Upper passing")
+SINGLE_COIL_TURNOUT(3, 170, 171, 807, "Lower passing")
+SINGLE_COIL_TURNOUT(4, 173, 172, 805, "Inner lead")
+SINGLE_COIL_TURNOUT(5, 174, 175, 803, "Inner ladder")
+SINGLE_COIL_TURNOUT(6, 177, 176, 801, "Prog lead")
+SINGLE_COIL_TURNOUT(7, 178, 179, 816, "Prog ladder")
+SINGLE_COIL_TURNOUT(8, 181, 180, 812, "Yard lead")
+SINGLE_COIL_TURNOUT(9, 183, 182, 842, "Yard ladder 1" )
+SINGLE_COIL_TURNOUT(10,184, 185, 814, "Yard ladder 2")
 
 // signals for turnout indicators
 SIGNAL(811, 0, 810)  //1 13,12
