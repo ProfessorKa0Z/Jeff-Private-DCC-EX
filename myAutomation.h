@@ -14,10 +14,10 @@ HAL(Bitmap,1000,2)  // flags
 
 ALIAS(trnblock, 254) // turnout sequences will reserve or free this block to moderate control of pwm and stby pins [must be less than 255 for free/reserve]
 
-ALIAS(prog_red, 843)	// Turnout and LED for programming track join (pin 47 & 49 expander)
-ALIAS(prog_green,845)	// 843 is red; 845 is green (active-low; common anode to 5v)
+ALIAS(prog_red, 845)	// Turnout and LED for programming track join (pin 47 & 49 expander)
+ALIAS(prog_green,843)	// 843 is red; 845 is green (active-low; common anode to 5v)
 ALIAS(prog_amber,1000)	// unconnected;  just defined so amber will turn off LED
-ALIAS(prog_sig, 843)
+ALIAS(prog_sig, 845)
 
 ALIAS(cl6flag,1001) // flag to indicate train in block 6 is clockwise
 
@@ -100,7 +100,7 @@ AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 PIN_TURNOUT(t, 0, desc) \
 AUTOSTART \
   RESET(in1) RESET(in2) \
-  IFNVS(nvs) THROW(t) ELSE CLOSE(t) ENDIF \
+  IFNVS(nvs) RED(sig) ELSE GREEN(sig) ENDIF \
   DELAY(500) \
 DONE \
 ONCLOSE(t) \
