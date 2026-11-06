@@ -62,7 +62,7 @@ ONTHROW(refresh)
   CLOSE(refresh)
 DONE
 
-ALIAS(camcheck)
+/* ALIAS(camcheck)
 AUTOSTART SEQUENCE(camcheck) // check sensor 20 (vpin 716) for SensorCAM response. Can be any undefined sensor.
   DELAY(1000)
   PARSE("<NL 20>") // latch sensor
@@ -78,7 +78,7 @@ AUTOSTART SEQUENCE(camcheck) // check sensor 20 (vpin 716) for SensorCAM respons
   ENDIF
   LCD(7,"SensorCAM INACTIVE")
   DELAY(5000) // check again in 5 seconds
-FOLLOW(camcheck)
+FOLLOW(camcheck) */
 
 //---------- Turnouts ----------
 
