@@ -95,24 +95,23 @@ AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 
 #define closed 0
 #define thrown 1
-AUTOSTART
-IFNVS(1) PRINT("NVS 1 set") ELSE STEALTH(NVSTable::setNVS(1, 42, true);) PRINT("Setting NVS 1 to 42") ENDIF
-DONE
-
 
 #define SINGLE_COIL_TURNOUT(t, in2, in1, sig, nvs, desc) \
 PIN_TURNOUT(t, 0, desc) \
 AUTOSTART \
   RESET(in1) RESET(in2) \
-  IFTHROWN(t) RED(sig) ELSE GREEN(sig) ENDIF \
+  IFNVS(nvs) THROW(t) ELSE CLOSE(t) ENDIF \
+  DELAY(500) \
 DONE \
 ONCLOSE(t) \
 	RESERVE(trnblock) SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(HPULSE) SET(in2) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)  \
   GREEN(sig) \
+  IFNVS(nvs) STEALTH(NVSTable::setNVS(nvs, closed, true);) ENDIF \
 DONE \
 ONTHROW(t) \
 	RESERVE(trnblock) SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(HPULSE) SET(in1) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)   \
   RED(sig) \
+  IFNVS(nvs) ELSE STEALTH(NVSTable::setNVS(nvs, thrown, true);) ENDIF \
 DONE
 
 // H-bridge inputs MCP23017 expander pins #1 GPA2-GPB7; #2 GPA0-GPA5: vpins 166 - 185 
