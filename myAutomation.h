@@ -96,7 +96,7 @@ AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 #define closed 0
 #define thrown 1
 AUTOSTART
-IFNVS(1) PRINT(ELSE STEALTH(NVSTable::setNVS(1, 42, true);) PRINT("Setting NVS 1 to 42") ENDIF
+IFNVS(1) PRINT("NVS 1 set") ELSE STEALTH(NVSTable::setNVS(1, 42, true);) PRINT("Setting NVS 1 to 42") ENDIF
 DONE
 
 
