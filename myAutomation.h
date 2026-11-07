@@ -93,6 +93,8 @@ AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 #define HPULSE 40  // Set the duration of the pulse (ms) 40 msec needed with 14v / 9400µF CDU and Kato double crossover for reliable throw
 #define decay 3   // Set the duration of the brake (ms)
 
+// turnout states stored in NVS; signals but not turnout position updated upon startup
+// turnout states updated in NVS when turnout is changed from stored state
 #define closed 0
 #define thrown 1
 
@@ -101,7 +103,6 @@ PIN_TURNOUT(t, 0, desc) \
 AUTOSTART \
   RESET(in1) RESET(in2) \
   IFNVS(nvs) RED(sig) ELSE GREEN(sig) ENDIF \
-  DELAY(500) \
 DONE \
 ONCLOSE(t) \
 	RESERVE(trnblock) SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(HPULSE) SET(in2) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)  \
