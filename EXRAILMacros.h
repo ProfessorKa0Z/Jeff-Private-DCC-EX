@@ -176,7 +176,7 @@ bool exrailHalSetup1() {
 #define CONFIGURE_SERVO(vpin,pos1,pos2,profile) IODevice::configureServo(vpin,pos1,pos2,PCA9685::profile);
 #undef SIGNAL
 #define SIGNAL(redpin,amberpin,greenpin,description...) \
-  new LEDSignal(redpin,redpin,amberpin,greenpin,false,S_DESC(description));
+  new LEDSignal(redpin,redpin,amberpin,greenpin,true,S_DESC(description));
 #undef SIGNALH
 #define SIGNALH(redpin,amberpin,greenpin,description...) \
   new LEDSignal(redpin,redpin,amberpin,greenpin,false,S_DESC(description));
