@@ -7,17 +7,17 @@ HAL(EXIOExpander, 800, 62, 0x65) // EX-IOExpander for signals
 ALIAS(pwm, 164) // GPA0 (164) - PWM
 ALIAS(stby, 165) // GPA1 (165) - STBY
 
-#define trk_pwr -18 // ESP32 pin 18 connected to pin 17 to sense motor shield PWM state
+#define trk_pwr 18 // ESP32 pin 18 connected to pin 17 to sense motor shield PWM state
                     // this is pin 10/11 on UNO form factor
 
 HAL(Bitmap,1000,2)  // flags
 
 ALIAS(trnblock, 254) // turnout sequences will reserve or free this block to moderate control of pwm and stby pins [must be less than 255 for free/reserve]
 
-ALIAS(prog_red, 845)	// Turnout and LED for programming track join (pin 47 & 49 expander)
-ALIAS(prog_green,843)	// 843 is red; 845 is green (active-low; common anode to 5v)
+ALIAS(prog_red, 843)	// Turnout and LED for programming track join (pin 47 & 49 expander)
+ALIAS(prog_green,845)	// 843 is red; 845 is green (active-low; common anode to 5v)
 ALIAS(prog_amber,1000)	// unconnected;  just defined so amber will turn off LED
-ALIAS(prog_sig, 845)
+ALIAS(prog_sig, 843)
 
 ALIAS(cl6flag,1001) // flag to indicate train in block 6 is clockwise
 
@@ -31,15 +31,15 @@ PIN_TURNOUT(prog_t, 0, "Prog track join") // turnout to join or unjoin programmi
 AUTOSTART AMBER(prog_sig) CLOSE(prog_t) DONE // on startup, turn off LED and set turnout state
 
 ONSENSOR(trk_pwr)  // monitor changes in track power
-  IF(trk_pwr) CLOSE(prog_t) // upon power-on; set join turnout closed (will light red LED)
-  ELSE AMBER(prog_sig) CLOSE(prog_t) // upon power-off, turn off LED; set join turnout closed
+  IF(-trk_pwr) CLOSE(prog_t) PRINT("***Track power on") // upon power-on; set join turnout closed (will light red LED)
+  ELSE AMBER(prog_sig) CLOSE(prog_t) PRINT("***Track power off") // upon power-off, turn off LED; set join turnout closed
   ENDIF
 DONE
 
 	// THROWN is joined state. If power on, join and light green LED; if power off, just revert to close
   	// CLOSED is unjoined state. If power on, unjoin and light red LED; if power off, do nothing 
-ONTHROW(prog_t) IF(trk_pwr) JOIN GREEN(prog_sig) PRINT("Programming track joined") ELSE CLOSE(prog_t) ENDIF DONE
-ONCLOSE(prog_t) IF(trk_pwr) UNJOIN RED(prog_sig) PRINT("Programming track unjoined") ENDIF DONE
+ONTHROW(prog_t) IF(-trk_pwr) JOIN GREEN(prog_sig) PRINT("Programming track joined") ELSE CLOSE(prog_t) ENDIF DONE
+ONCLOSE(prog_t) IF(-trk_pwr) UNJOIN RED(prog_sig) PRINT("Programming track unjoined") ENDIF DONE
 
 //---------- Relay for outer yard power
 ALIAS(yard_t,11)
@@ -107,12 +107,12 @@ DONE \
 ONCLOSE(t) \
 	RESERVE(trnblock) SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(HPULSE) SET(in2) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)  \
   GREEN(sig) \
-  IFNVS(nvs) STEALTH(NVSTable::setNVS(nvs, closed, true);) ENDIF \
+  STEALTH(NVSTable::setNVS(nvs, closed, true);) ENDIF \
 DONE \
 ONTHROW(t) \
 	RESERVE(trnblock) SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(HPULSE) SET(in1) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)   \
   RED(sig) \
-  IFNVS(nvs) ELSE STEALTH(NVSTable::setNVS(nvs, thrown, true);) ENDIF \
+  STEALTH(NVSTable::setNVS(nvs, thrown, true);) \
 DONE
 
 // H-bridge inputs MCP23017 expander pins #1 GPA2-GPB7; #2 GPA0-GPA5: vpins 166 - 185 
