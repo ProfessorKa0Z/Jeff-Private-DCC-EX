@@ -10,7 +10,7 @@ ALIAS(stby, 165) // GPA1 (165) - STBY
 #define trk_pwr 18 // ESP32 pin 18 connected to pin 17 to sense motor shield PWM state
                     // this is pin 10/11 on UNO form factor
 
-HAL(Bitmap,1000,2)  // flags
+HAL(Bitmap,1000,12)  // flags
 
 ALIAS(trnblock, 254) // turnout sequences will reserve or free this block to moderate control of pwm and stby pins [must be less than 255 for free/reserve]
 
@@ -19,7 +19,7 @@ ALIAS(prog_green,845)	// 843 is red; 845 is green (active-low; common anode to 5
 ALIAS(prog_amber,1000)	// unconnected;  just defined so amber will turn off LED
 ALIAS(prog_sig, 843)
 
-ALIAS(cl6flag,1001) // flag to indicate train in block 6 is clockwise
+ALIAS(cl6flag,1011) // flag to indicate train in block 6 is clockwise
 
 //---------- Control and indication of programming track ---------- 
 
@@ -99,6 +99,31 @@ AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 #define closed 0
 #define thrown 1
 
+#define SINGLE_COIL_TURNOUT(t, in2, in1, sig, state_vpin, desc) \
+PIN_TURNOUT(t, 0, desc) \
+AUTOSTART \
+  RESET(in1) RESET(in2) \
+  STEALTH(TurnoutStates::get(desc, state_vpin);) \
+  IF(state_vpin) RED(sig) ELSE GREEN(sig) ENDIF \
+DONE \
+ONCLOSE(t) \
+  RESERVE(trnblock) \
+    SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(hpulse) SET(in2) DELAY(decay) \
+    RESET(pwm) RESET(in1) RESET(in2) RESET(stby) \
+  FREE(trnblock) \
+  GREEN(sig) \
+  STEALTH(TurnoutStates::set(desc, closed);) \
+DONE \
+ONTHROW(t) \
+  RESERVE(trnblock) \
+    SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(hpulse) SET(in1) DELAY(decay) \
+    RESET(pwm) RESET(in1) RESET(in2) RESET(stby) \
+  FREE(trnblock) \
+  RED(sig) \
+  STEALTH(TurnoutStates::set(desc, thrown);) \
+DONE
+
+/*
 #define SINGLE_COIL_TURNOUT(t, in2, in1, sig, nvs, desc) \
 PIN_TURNOUT(t, 0, desc) \
 AUTOSTART \
@@ -121,19 +146,20 @@ ONTHROW(t) \
   RED(sig) \
   STEALTH(NVSTable::setNVS(nvs, thrown, true);) \
 DONE
+*/
 
 // H-bridge inputs MCP23017 expander pins #1 GPA2-GPB7; #2 GPA0-GPA5: vpins 166 - 185 
 // turnout defined as id, h-bridge output pins, indicator signal, nvs location, description
-SINGLE_COIL_TURNOUT(1, 166, 167, 811, 1, "Crossover")
-SINGLE_COIL_TURNOUT(2, 169, 168, 809, 2, "Upper passing")
-SINGLE_COIL_TURNOUT(3, 170, 171, 807, 3, "Lower passing")
-SINGLE_COIL_TURNOUT(4, 173, 172, 805, 4, "Inner lead")
-SINGLE_COIL_TURNOUT(5, 174, 175, 803, 5, "Inner ladder")
-SINGLE_COIL_TURNOUT(6, 177, 176, 801, 6, "Prog lead")
-SINGLE_COIL_TURNOUT(7, 178, 179, 816, 7, "Prog ladder")
-SINGLE_COIL_TURNOUT(8, 181, 180, 812, 8, "Yard lead")
-SINGLE_COIL_TURNOUT(9, 183, 182, 842, 9, "Yard ladder 1" )
-SINGLE_COIL_TURNOUT(10,184, 185, 814, 10, "Yard ladder 2")
+SINGLE_COIL_TURNOUT(1, 166, 167, 811, 1001, "Crossover")
+SINGLE_COIL_TURNOUT(2, 169, 168, 809, 1002, "Upper passing")
+SINGLE_COIL_TURNOUT(3, 170, 171, 807, 1003, "Lower passing")
+SINGLE_COIL_TURNOUT(4, 173, 172, 805, 1004, "Inner lead")
+SINGLE_COIL_TURNOUT(5, 174, 175, 803, 1005, "Inner ladder")
+SINGLE_COIL_TURNOUT(6, 177, 176, 801, 1006, "Prog lead")
+SINGLE_COIL_TURNOUT(7, 178, 179, 816, 1007, "Prog ladder")
+SINGLE_COIL_TURNOUT(8, 181, 180, 812, 1008, "Yard lead")
+SINGLE_COIL_TURNOUT(9, 183, 182, 842, 1009, "Yard ladder 1" )
+SINGLE_COIL_TURNOUT(10,184, 185, 814, 1010, "Yard ladder 2")
 
 // signals for turnout indicators
 SIGNAL(811, 0, 810)  //1 13,12
