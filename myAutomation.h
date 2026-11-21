@@ -30,9 +30,9 @@ PIN_TURNOUT(prog_t, 0, "Prog track join") // turnout to join or unjoin programmi
 
 AUTOSTART AMBER(prog_sig) CLOSE(prog_t) DONE // on startup, turn off LED and set turnout state
 
-ONSENSOR(trk_pwr)  // monitor changes in track power
-  IF(-trk_pwr) CLOSE(prog_t) PRINT("***Track power on") // upon power-on; set join turnout closed (will light red LED)
-  ELSE AMBER(prog_sig) CLOSE(prog_t) PRINT("***Track power off") // upon power-off, turn off LED; set join turnout closed
+ONSENSOR(trk_pwr)  // monitor changes in track power. Note that IF() evalutes LOW as TRUE, so use -trk_pwr
+  IF(-trk_pwr) CLOSE(prog_t) // upon power-on; set join turnout closed (will light red LED)
+  ELSE AMBER(prog_sig) CLOSE(prog_t) // upon power-off, turn off LED; set join turnout closed
   ENDIF
 DONE
 
@@ -85,16 +85,17 @@ FOLLOW(camcheck)
 // Unitrack turnouts controlled by TB6612 H-bridges
 // Each turnout associated with a red/green signal
 // define TB6612 in1 / in2 pins for each turnout
-// Since pwm and stby are common to all H-bridges, a reserve/free block is used to prevent simultaneous operation
-// Hold both control pins high (short brake) for 3 msec to provide slow decay (may be unnecessary)
+// Since pwm and stby pins are common to all H-bridges, a reserve block prevents simultaneous operation
+// Hold both control pins high (short brake) for 3 msec to provide slow decay 
 
 AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 
-#define HPULSE 40  // Set the duration of the pulse (ms) 40 msec needed with 14v / 9400µF CDU and Kato double crossover for reliable throw
-#define decay 3   // Set the duration of the brake (ms)
+// Set the duration of the pulse and decay (ms)
+// 40 msec needed with 14v / 9400µF CDU and Kato double crossover for reliable throw
+#define hpulse 40
+#define decay 3
 
 // turnout states stored in NVS; signals but not turnout position updated upon startup
-// turnout states updated in NVS when turnout is changed from stored state
 #define closed 0
 #define thrown 1
 
@@ -105,12 +106,18 @@ AUTOSTART \
   IFNVS(nvs) RED(sig) ELSE GREEN(sig) ENDIF \
 DONE \
 ONCLOSE(t) \
-	RESERVE(trnblock) SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(HPULSE) SET(in2) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)  \
+  RESERVE(trnblock) \
+    SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(hpulse) SET(in2) DELAY(decay) \
+    RESET(pwm) RESET(in1) RESET(in2) RESET(stby) \
+  FREE(trnblock) \
   GREEN(sig) \
-  STEALTH(NVSTable::setNVS(nvs, closed, true);) ENDIF \
+  STEALTH(NVSTable::setNVS(nvs, closed, true);) \
 DONE \
 ONTHROW(t) \
-	RESERVE(trnblock) SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(HPULSE) SET(in1) DELAY(decay) RESET(pwm) RESET(in1) RESET(in2) RESET(stby) FREE(trnblock)   \
+  RESERVE(trnblock) \
+    SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(hpulse) SET(in1) DELAY(decay) \
+    RESET(pwm) RESET(in1) RESET(in2) RESET(stby) \
+  FREE(trnblock) \
   RED(sig) \
   STEALTH(NVSTable::setNVS(nvs, thrown, true);) \
 DONE
