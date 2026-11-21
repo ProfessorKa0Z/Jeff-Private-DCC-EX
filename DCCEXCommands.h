@@ -613,13 +613,14 @@ ZZMANY(^) // Build consists from variable number of loco ids (negative for rever
 // ZZ(^, leadLoco,follower [,follower2..7]) // Creates a consist from up to 8 loco ids (negative for loco in reverse) 
   CHECK(DCCConsist::parse(stream,params,p),Consist failed)
 
-// ZZ(M,ignore,d0,d1,[d2,d3,d4,d5]) // Send up to 5 byte DCC packet on MAIN track (values in hex). 
+// ZZ(M,ignore,d0,d1,[d2..d14]) // Send up to 15 byte DCC packet on MAIN track (values in hex).
 /// The ignore value is for backward compatibility, use 0. 
-ZZ_nodoc(M,ignore,d0,d1,d2,d3,d4,d5) byte packet[]={(byte)d0,(byte)d1,(byte)d2,(byte)d3,(byte)d4,(byte)d5}; DCCWaveform::mainTrack.schedulePacket(packet,sizeof(packet),3);
-ZZ_nodoc(M,ignore,d0,d1,d2,d3,d4) byte packet[]={(byte)d0,(byte)d1,(byte)d2,(byte)d3,(byte)d4}; DCCWaveform::mainTrack.schedulePacket(packet,sizeof(packet),3);
-ZZ_nodoc(M,ignore,d0,d1,d2,d3) byte packet[]={(byte)d0,(byte)d1,(byte)d2,(byte)d3}; DCCWaveform::mainTrack.schedulePacket(packet,sizeof(packet),3);
-ZZ_nodoc(M,ignore,d0,d1,d2) byte packet[]={(byte)d0,(byte)d1,(byte)d2}; DCCWaveform::mainTrack.schedulePacket(packet,sizeof(packet),3);
-ZZ_nodoc(M,ignore,d0,d1) byte packet[]={(byte)d0,(byte)d1}; DCCWaveform::mainTrack.schedulePacket(packet,sizeof(packet),3);
+ZZMANY(M)
+  CHECK(params>=3 && params<=MAX_PACKET_SIZE+1, M takes 2 to 15 bytes)
+  for (byte i=1;i<params;i++) CHECK(p[i]>=0 && p[i]<=255, M byte out of range)
+  byte packet[MAX_PACKET_SIZE];
+  for (byte i=1;i<params;i++) packet[i-1]=(byte)p[i];
+  DCCWaveform::mainTrack.schedulePacket(packet,params-1,3);
 // ZZ(P,ignore,d0,d1[,d2,d3,d4,d5]) // Send up to 5 byte DCC packet on PROG track (all d values in hex).
 /// The ignore value is for backward compatibility, use 0.
 ZZ_nodoc(P,ignore,d0,d1,d2,d3,d4,d5) byte packet[]={(byte)d0,(byte)d1,(byte)d2,(byte)d3,(byte)d4,(byte)d5}; DCCWaveform::progTrack.schedulePacket(packet,sizeof(packet),3);
@@ -650,12 +651,17 @@ ZZ(J,P,id) // List turntable positions
 ZZ(=) // List track manager states
         TrackManager::list(stream); 
 // ZZ(=,track,tracktype)   // Set track to MAIN, MAIN_INV, MAIN_AUTO, PROG, OFF, NONE, EXT, BOOST, BOOST_INV, BOOST_AUTO
+// setTrackMode() sets base setting and modifiers
 ZZ_nodoc(=,track,MAIN) // Set track to MAIN
         CHECK(TrackManager::setTrackMode(track,TRACK_MODE_MAIN))
 ZZ_nodoc(=,track,MAIN_INV) // Set track to MAIN inverted polarity
         CHECK(TrackManager::setTrackMode(track,TRACK_MODE_MAIN_INV))
 ZZ_nodoc(=,track,MAIN_AUTO) // Set track to MAIN with auto reversing
         CHECK(TrackManager::setTrackMode(track,TRACK_MODE_MAIN_AUTO))
+ZZ_nodoc(=,track,MAIN_RAILCOM)
+        CHECK(TrackManager::setTrackMode(track,TRACK_MODE_MAIN_RAILCOM))
+ZZ_nodoc(=,track,MAIN_RAILCOM_AUTO)
+        CHECK(TrackManager::setTrackMode(track,TRACK_MODE_MAIN_RAILCOM_AUTO))
 ZZ_nodoc(=,track,PROG) // Set track to PROG
         CHECK(TrackManager::setTrackMode(track,TRACK_MODE_PROG)) 
 ZZ_nodoc(=,track,OFF) // Set track power OFF
@@ -666,18 +672,12 @@ ZZ_nodoc(=,track,EXT)  // Set track to use external sync
         CHECK(TrackManager::setTrackMode(track,TRACK_MODE_EXT))      
 
 #ifdef BOOSTER_INPUT
-ZZ_nodoc(=,track,BOOST)      CHECK(TrackManager::setTrackMode(track,TRACK_MODE_BOOST))
-ZZ_nodoc(=,track,BOOST_INV)  CHECK(TrackManager::setTrackMode(track,TRACK_MODE_BOOST_INV))
-ZZ_nodoc(=,track,BOOST_AUTO) CHECK(TrackManager::setTrackMode(track,TRACK_MODE_BOOST_AUTO))
+ZZ_nodoc(=,track,BOOST)              CHECK(TrackManager::setTrackMode(track,TRACK_MODE_BOOST))
+ZZ_nodoc(=,track,BOOST_INV)          CHECK(TrackManager::setTrackMode(track,TRACK_MODE_BOOST_INV))
+ZZ_nodoc(=,track,BOOST_AUTO)         CHECK(TrackManager::setTrackMode(track,TRACK_MODE_BOOST_AUTO))
+ZZ_nodoc(=,track,BOOST_RAILCOM)      CHECK(TrackManager::setTrackMode(track,TRACK_MODE_BOOST_RAILCOM))
+ZZ_nodoc(=,track,BOOST_RAILCOM_AUTO) CHECK(TrackManager::setTrackMode(track,TRACK_MODE_BOOST_RAILCOM_AUTO))
 #endif
-
-// Z(=,track,update) // Update track setting to AUTO, INV, RAILCOM
-ZZ_nodoc(=,track,AUTO)  // Update track to auto reverse
-        CHECK(TrackManager::orTrackMode(track, TRACK_MODIFIER_AUTO))
-ZZ_nodoc(=,track,INV) // Update track to inverse polarity
-        CHECK(TrackManager::orTrackMode(track, TRACK_MODIFIER_INV))
-ZZ_nodoc(=,track,RAILCOM) // Update track to add cutout
-        CHECK(TrackManager::orTrackMode(track, TRACK_MODIFIER_RAILCOM))
 
 ZZ(=,track,DC,loco) // Set track to DC
         CHECK(TrackManager::setTrackMode(track, TRACK_MODE_DC, loco))
@@ -685,6 +685,15 @@ ZZ(=,track,DC_INV,loco) // Set track to DC with inverted polarity
         CHECK(TrackManager::setTrackMode(track, TRACK_MODE_DC_INV, loco))
 ZZ(=,track,DCX,loco) // Set track to DC with inverted polarity
         CHECK(TrackManager::setTrackMode(track, TRACK_MODE_DC_INV, loco))
+
+// Z(=,track,update) // Update track setting to AUTO, INV, RAILCOM
+// orTackMode() keeps base setting, adds modifier
+ZZ_nodoc(=,track,AUTO)  // Update track to auto reverse
+        CHECK(TrackManager::orTrackMode(track, TRACK_MODIFIER_AUTO))
+ZZ_nodoc(=,track,INV) // Update track to inverse polarity
+        CHECK(TrackManager::orTrackMode(track, TRACK_MODIFIER_INV))
+ZZ_nodoc(=,track,RAILCOM) // Update track to add cutout
+        CHECK(TrackManager::orTrackMode(track, TRACK_MODIFIER_RAILCOM))
 
 #ifdef EXRAIL_ACTIVE
 // ZZ(D,EXRAIL,ON) // EXRAIL diagnostics ON or OFF

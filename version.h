@@ -3,7 +3,21 @@
 
 #include "StringFormatter.h"
 
-#define VERSION "5.9.20"
+#define VERSION "5.9.25"
+// 5.9.25 - Railcom for booster track outputs
+//        - Async UDP queues 
+//        - no mdns for throttle traffic if motor shield not defined
+// 5.9.24 - removed sensor created messages. <D SENSORS> remains.
+//        - Nodes menu on browser page  
+// 5.9.23 - Oled displays on browser page
+//        - Gzipped browser pages (breaking change for existing config dialogs)
+//        - Mergeing browser pages
+//        - Automatic html/css/js grouping 
+//        - Long DCC packet support
+// 5.9.22 - ESP32 4MB flash: added partitions_4MB_ota.csv partition scheme to increase OTA partition size to 1.5MB, shrinking SPIFFS/LittleFS partition to 0.375MB
+// 5.9.21 - Relocated my*.example.* files to example.my*.*
+//        - EXRAIL 32bit operands and delay support
+//        - EXRAIL improved / command display
 // 5.9.20 - better organized platformio.ini
 //        - ACK Manager improved diagnostics
 // 5.9.19 - fixed EXTT_TURNTABLE macro for correct homeAngle parameter

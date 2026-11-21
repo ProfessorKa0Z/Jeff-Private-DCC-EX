@@ -217,9 +217,21 @@ bool exrailHalSetup1() {
 #define VIRTUAL_TURNOUT(id,description...) VpinTurnout::create(id,0)->setRamDescription(S_DESC(description));
 #undef CONFIGURE_DIALOG
 #define CONFIGURE_DIALOG(title,body) {\
-   extern const char  body##_html[];\
-   SerialUsbLog::addUserPage("/" #body ".html",body##_html,title);\
-}
+  extern const unsigned char  body##_html_gz[];\
+  extern const unsigned int body##_html_gz_len;\
+  new LogPage("/" #body ".html",body##_html_gz,body##_html_gz_len,title);\
+  extern __attribute__((weak)) const unsigned char  body##_css_gz[];\
+  if (&body##_css_gz != nullptr) {\
+    extern __attribute__((weak)) const unsigned int body##_css_gz_len;\
+    new LogPage("/" #body ".css",body##_css_gz,body##_css_gz_len);\
+  }\
+  extern __attribute__((weak)) const unsigned char  body##_js_gz[];\
+  if (&body##_js_gz != nullptr) {\
+    extern __attribute__((weak)) const unsigned int body##_js_gz_len;\
+    new LogPage("/" #body ".js",body##_js_gz,body##_js_gz_len);\
+  }\
+  }
+
 // Sensors created here 
 #undef REMOTE_SENSOR
 #define REMOTE_SENSOR(sharedVpin,count) \
@@ -488,7 +500,7 @@ int RMFT2::onLCCLookup[RMFT2::countLCCLookup];
 #define AT(sensor_id) OPCODE_AT,V(sensor_id),
 #define ATGTE(sensor_id,value) OPCODE_ATGTE,V(sensor_id),OPCODE_PAD,V(value),  
 #define ATLT(sensor_id,value) OPCODE_ATLT,V(sensor_id),OPCODE_PAD,V(value),  
-#define ATTIMEOUT(sensor_id,timeout) OPCODE_ATTIMEOUT1,V(0),OPCODE_ATTIMEOUT2,V(sensor_id),OPCODE_PAD,V(timeout/100L),
+#define ATTIMEOUT(sensor_id,timeout) OPCODE_ATTIMEOUT1,V(0),OPCODE_ATTIMEOUT2,V(sensor_id),OPCODE_PAD,V(timeout),
 #define AUTOMATION(id, description)  OPCODE_AUTOMATION, V(id), 
 #define AUTOSTART OPCODE_AUTOSTART,V(0),
 #define BLINK(vpin,onDuty,offDuty) OPCODE_BLINK,V(vpin),OPCODE_PAD,V(onDuty),OPCODE_PAD,V(offDuty),

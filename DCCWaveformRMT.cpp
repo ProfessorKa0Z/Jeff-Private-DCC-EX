@@ -55,7 +55,13 @@ void DCCWaveform::begin() {
     // if RC and so on XXX
     TRACK_MODE m = md->getMode();
     if (m & TRACK_MODIFIER_RAILCOM) {
-      rmtMainChannel->addRCPin(md->getBrakePinSigned());
+      rmtMainChannel->addRCPin(md->getBrakePinSigned(), false /* not booster */);
+    }
+  }
+  for(const auto& md: TrackManager::getBoostDrivers()) {   // not sure if this should be here
+    TRACK_MODE m = md->getMode();
+    if (m & TRACK_MODIFIER_RAILCOM) {
+      rmtMainChannel->addRCPin(md->getBrakePinSigned(), true /* booster */);
     }
   }
   MotorDriver *md = TrackManager::getProgDriver();
@@ -72,7 +78,10 @@ void DCCWaveform::begin() {
 }
 
 void DCCWaveform::schedulePacket(const byte buffer[], byte byteCount, byte repeats) {
-  if (byteCount > MAX_PACKET_SIZE) return; // allow for chksum
+  if (byteCount > MAX_PACKET_SIZE) {
+    DIAG(F("Packet of %d bytes dropped, limit %d"), byteCount, MAX_PACKET_SIZE);
+    return;
+  }
   RMTChannel *rmtchannel = (isMainTrack ? rmtMainChannel : rmtProgChannel);
   if (rmtchannel == NULL)
     return; // no idea to prepare packet if we can not send it anyway

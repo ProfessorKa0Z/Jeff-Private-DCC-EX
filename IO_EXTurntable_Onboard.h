@@ -37,11 +37,52 @@
  * It is included automatically through `IODeviceList.h` in those builds.
  *
  * ## Define the device
+ *
+ * @code{}
+ * [env:EX_Turntable_Onboard]
+ * extends = env:ESP32-NODE
+ * platform = espressif32
+ * board = arduino_nano_esp32
+ * 
+ * build_flags = 
+ *     ${env:ESP32-NODE.build_flags} 
+ *     -std=c++17
+ *     -DARDUINO_USB_MODE=1
+ *     -DARDUINO_USB_CDC_ON_BOOT=1
+ *     -DSD_CHIP_SELECT_MODE=1
+ *     -DBOARD_HAS_PSRAM
+ *     -DEXTURNTABLE_ONBOARD
+ *     -DNO_DISPLAY
+ *     -DI2C_SDA=11
+ *     -DI2C_SCL=10
+ *     -mfix-esp32-psram-cache-issue
+ * 
+ * lib_deps = 
+ *     ${env:ESP32-NODE.lib_deps} 
+ * 	waspinator/AccelStepper @ ^1.64.0
+ * 
+ * ; Board-specific settings (ESP32-S3 with 16MB Flash, 8MB PSRAM)
+ * board_build.mcu = esp32s3
+ * board_build.f_cpu = 240000000L
+ * board_build.f_flash = 80000000L
+ * board_build.flash_mode = dio
+ * board_build.partitions = default_16MB.csv
+
+ * ; Specify upload and monitor speed
+ * upload_speed = 921600
+ * upload_protocol = esptool
+ * monitor_speed = 115200
+ * monitor_echo = yes
+ * vmonitor_dtr = 0
+ * monitor_rts = 0
+ * @endcode
+ *
  * Add a `HAL` declaration in `myAutomation.h`. The first number is the first virtual pin (VPIN), the second is the number of vpins
  * to use.  This is only 1 as that's all that's required for the turntable.
  * 
  *
  * @code{.cpp}
+ * #include "IO_EXTurntable_Onboard.h"
  * HAL(EXTurntable_OB, 600, 1)
  * @endcode
  * 
@@ -234,6 +275,14 @@ private:
   #define EXTT_DEFAULT_EXTRA_PIN_4 12
 #endif
 
+
+#ifndef EX_TURNTABLE_INVERT_ENABLE
+  #ifdef INVERT_ENABLE
+    #define EX_TURNTABLE_INVERT_ENABLE
+  #endif
+#endif
+
+
 #ifndef EX_TURNTABLE_LIMIT_SENSOR_PIN
   #ifdef LIMIT_SENSOR_PIN
     #define EX_TURNTABLE_LIMIT_SENSOR_PIN LIMIT_SENSOR_PIN
@@ -396,6 +445,7 @@ private:
   #define EX_TURNTABLE_LED_FAST_MS 100
   #endif
 #endif
+
 #if defined(TURNTABLE_EX_MODE) && defined(TRAVERSER) && \
     TURNTABLE_EX_MODE == TRAVERSER && !defined(EX_TURNTABLE_MODE_TRAVERSER)
   #define EX_TURNTABLE_MODE_TRAVERSER
@@ -1028,6 +1078,15 @@ inline int EXTurntable_OB::_read(VPIN vpin) {
   return _stepperStatus;
 }
 
+
+inline void EXTurntable_OB::_broadcastStatus(VPIN vpin, uint8_t status, uint8_t activity) {
+  const uint16_t turntableId = Turntable::getByVpin(vpin);
+  if (turntableId && activity < 4) {
+    Turntable::setMoving(turntableId, status != 0);
+  }
+}
+
+/*
 inline void EXTurntable_OB::_broadcastStatus(VPIN vpin, uint8_t status, uint8_t activity) {
   Turntable *turntable = Turntable::getByVpin(vpin);
   if (turntable && activity < 4) {
@@ -1036,6 +1095,7 @@ inline void EXTurntable_OB::_broadcastStatus(VPIN vpin, uint8_t status, uint8_t 
         turntable->getId(), turntable->getPosition(), status);
   }
 }
+*/
 
 inline void EXTurntable_OB::_writeAnalogue(
     VPIN vpin, int value, uint8_t activity, uint16_t duration) {
