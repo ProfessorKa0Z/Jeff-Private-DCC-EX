@@ -1,3 +1,4 @@
+#include "myTurnouts.h"
 // Default MCP23017s at addresses 0x20 and 0x21: vpins 164 - 195 control H-bridges for turnouts
 HAL(EXSensorCAM, SENSORCAM_VPIN,  80, 0x11) //SENSORCAM _VPIN defined in config.h
 HAL(EXIOExpander, 800, 62, 0x65) // EX-IOExpander for signals
@@ -99,6 +100,8 @@ AUTOSTART RESET(stby) RESET(pwm) DONE // H-bridges off at start
 #define closed 0
 #define thrown 1
 
+// H-bridge control pins begin low (impediance mode) on startup
+// Left in short brake mode after turnout throw
 #define SINGLE_COIL_TURNOUT(t, in2, in1, sig, state_vpin, desc) \
 PIN_TURNOUT(t, 0, desc) \
 AUTOSTART \
@@ -109,7 +112,7 @@ DONE \
 ONCLOSE(t) \
   RESERVE(trnblock) \
     SET(stby) SET(in1) RESET(in2) SET(pwm) DELAY(hpulse) SET(in2) DELAY(decay) \
-    RESET(pwm) RESET(in1) RESET(in2) RESET(stby) \
+    RESET(pwm) RESET(stby) \
   FREE(trnblock) \
   GREEN(sig) \
   STEALTH(TurnoutStates::set(desc, closed);) \
@@ -117,7 +120,7 @@ DONE \
 ONTHROW(t) \
   RESERVE(trnblock) \
     SET(stby) SET(in2) RESET(in1) SET(pwm) DELAY(hpulse) SET(in1) DELAY(decay) \
-    RESET(pwm) RESET(in1) RESET(in2) RESET(stby) \
+    RESET(pwm) RESET(stby) \
   FREE(trnblock) \
   RED(sig) \
   STEALTH(TurnoutStates::set(desc, thrown);) \
@@ -149,7 +152,7 @@ DONE
 */
 
 // H-bridge inputs MCP23017 expander pins #1 GPA2-GPB7; #2 GPA0-GPA5: vpins 166 - 185 
-// turnout defined as id, h-bridge output pins, indicator signal, nvs location, description
+// turnout defined as id, h-bridge output pins, indicator signal, vpin for state, description
 SINGLE_COIL_TURNOUT(1, 166, 167, 811, 1001, "Crossover")
 SINGLE_COIL_TURNOUT(2, 169, 168, 809, 1002, "Upper passing")
 SINGLE_COIL_TURNOUT(3, 170, 171, 807, 1003, "Lower passing")
