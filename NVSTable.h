@@ -52,11 +52,5 @@ class NVSTable {
   private:
       static void save2(const char * data);
 };
-#include "IODevice.h"
-class TurnoutStates {
-  public:
-    static void set(const char* key, uint8_t state);
-    static void get(const char* key, uint16_t vpin);
-};
 
 #endif

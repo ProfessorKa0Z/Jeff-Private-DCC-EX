@@ -355,20 +355,3 @@ int NVSTable::decodeNVSToken(int token, bool atBoot) {
   if (atBoot) e->bootNeeded=true; // Mark this NVS entry as needing to be set during boot
   return e->nvsValue+addition;
 }
-
-//append myTurnouts.cpp
-static const char TURNOUT_NAMESPACE[] = "turnoutstates";
-
-void TurnoutStates::set(const char* key, uint8_t state) {
-  Preferences prefs;
-  prefs.begin(TURNOUT_NAMESPACE, false); // Read-write
-  prefs.putUChar(key, state);
-  prefs.end();  
-}
-void TurnoutStates::get(const char* key, uint16_t vpin) {
-  Preferences prefs;
-  prefs.begin(TURNOUT_NAMESPACE, true); // Read-only
-  uint8_t state = prefs.getUChar(key, 0); // Default to 0 if key not found
-  prefs.end();
-  IODevice::write(vpin, state); // Write the state to the specified VPIN
-}
